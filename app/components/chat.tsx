@@ -373,17 +373,17 @@ function ChatAction(props: {
       style={
         props.icon && !props.loding
           ? ({
-              "--icon-width": `${width.icon}px`,
-              "--full-width": `${width.full}px`,
-              ...props.style,
-            } as React.CSSProperties)
+            "--icon-width": `${width.icon}px`,
+            "--full-width": `${width.full}px`,
+            ...props.style,
+          } as React.CSSProperties)
           : props.loding
-          ? ({
+            ? ({
               "--icon-width": `30px`,
               "--full-width": `30px`,
               ...props.style,
             } as React.CSSProperties)
-          : props.style
+            : props.style
       }
     >
       {props.icon ? (
@@ -622,21 +622,23 @@ export function ChatActions(props: {
           )}
         {(currentModel.includes("vision") || currentModel.includes("gizmo")) && (
           <ChatAction
-            onClick={selectImage}
+            onClick={selectImages}
             text="选择文件"
-            loding={uploadLoading}
+            loading={uploadLoading}
             icon={<UploadIcon />}
             innerNode={
               <input
                 type="file"
+                multiple
                 accept="*/*"
                 id="chat-image-file-select-upload"
                 style={{ display: "none" }}
-                onChange={onImageSelected}
+                onChange={onImagesSelected}
               />
             }
           />
         )}
+
 
         {showModelSelector && (
           <Selector
@@ -1031,28 +1033,28 @@ function _Chat() {
       .concat(
         isLoading
           ? [
-              {
-                ...createMessage({
-                  role: "assistant",
-                  content: "……",
-                }),
-                preview: true,
-              },
-            ]
+            {
+              ...createMessage({
+                role: "assistant",
+                content: "……",
+              }),
+              preview: true,
+            },
+          ]
           : [],
       )
       .concat(
         userInput.length > 0 && config.sendPreviewBubble
           ? [
-              {
-                ...createMessage({
-                  role: "user",
-                  content: userInput,
-                  image_url: userImage?.fileUrl,
-                }),
-                preview: true,
-              },
-            ]
+            {
+              ...createMessage({
+                role: "user",
+                content: userInput,
+                image_url: userImage?.fileUrl,
+              }),
+              preview: true,
+            },
+          ]
           : [],
       );
   }, [
@@ -1149,7 +1151,7 @@ function _Chat() {
         if (payload.key || payload.url) {
           showConfirm(
             Locale.URLCommand.Settings +
-              `\n${JSON.stringify(payload, null, 4)}`,
+            `\n${JSON.stringify(payload, null, 4)}`,
           ).then((res) => {
             if (!res) return;
             if (payload.key) {
