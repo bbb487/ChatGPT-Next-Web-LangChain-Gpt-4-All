@@ -640,7 +640,7 @@ export function ChatActions(props: {
           <ChatAction
             onClick={selectImage}
             text="选择文件"
-            loading={uploadLoading}
+            loding={uploadLoading}
             icon={<UploadIcon />}
             innerNode={
               <input
