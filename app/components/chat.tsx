@@ -476,22 +476,38 @@ export function ChatActions(props: {
   }
 
   const onImageSelected = async (e: any) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files.length) return;
+
     const api = new ClientApi();
-    setUploadLoading(true);
-    const uploadFile = await api.file
-      .upload(file)
-      .catch((e) => {
-        console.error("[Upload]", e);
-        showToast(prettyObject(e));
-      })
-      .finally(() => setUploadLoading(false));
-    props.imageSelected({
-      fileName: uploadFile.fileName,
-      fileUrl: uploadFile.filePath,
+
+    // Here we create a Promise for each file upload, 
+    // then use Promise.all to wait for all of them to complete.
+    const uploadPromises = Array.from(files).map(async (file) => {
+      setUploadLoading(true);
+      const uploadFile = await api.file
+        .upload(file)
+        .catch((e) => {
+          console.error("[Upload]", e);
+          showToast(prettyObject(e));
+          // return null if upload fails
+          return null;
+        })
+        .finally(() => setUploadLoading(false));
+
+      if (uploadFile) {
+        // use a callback or event to inform about the new file 
+        props.imageSelected({
+          fileName: uploadFile.fileName,
+          fileUrl: uploadFile.filePath,
+        });
+      }
+      // Clear file input on each iteration.  
+      e.target.value = null;
     });
-    e.target.value = null;
+
+    // Wait for all uploads to finish.
+    await Promise.all(uploadPromises);
   };
 
   // switch model
@@ -518,7 +534,7 @@ export function ChatActions(props: {
       const items = event.clipboardData?.items || [];
       const api = new ClientApi();
       for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf("image") === -1) continue;
+        // if (items[i].type.indexOf("image") === -1) continue;
         const file = items[i].getAsFile();
         if (file !== null) {
           setUploadLoading(true);
@@ -622,7 +638,7 @@ export function ChatActions(props: {
           )}
         {(currentModel.includes("vision") || currentModel.includes("gizmo")) && (
           <ChatAction
-            onClick={selectImages}
+            onClick={selectImage}
             text="选择文件"
             loading={uploadLoading}
             icon={<UploadIcon />}
@@ -633,7 +649,7 @@ export function ChatActions(props: {
                 accept="*/*"
                 id="chat-image-file-select-upload"
                 style={{ display: "none" }}
-                onChange={onImagesSelected}
+                onChange={onImageSelected}
               />
             }
           />
