@@ -554,7 +554,7 @@ export function ChatActions(props: {
         }
       }
     };
-    if (currentModel.includes("vision") || currentModel.includes("gizmo")) {
+    if (currentModel.includes("vision") || currentModel.includes("gizmo") || currentModel.includes("all")) {
       window.addEventListener("paste", onPaste);
       return () => {
         window.removeEventListener("paste", onPaste);
@@ -625,7 +625,7 @@ export function ChatActions(props: {
 
         {config.pluginConfig.enable &&
           /^gpt(?!.*03\d{2}$).*$/.test(currentModel) &&
-          (!currentModel.includes("vision") && !currentModel.includes("gizmo")) && (
+          (!currentModel.includes("vision") && !currentModel.includes("gizmo") || !currentModel.includes("all")) && (
             <ChatAction
               onClick={switchUsePlugins}
               text={
@@ -636,7 +636,7 @@ export function ChatActions(props: {
               icon={usePlugins ? <EnablePluginIcon /> : <DisablePluginIcon />}
             />
           )}
-        {(currentModel.includes("vision") || currentModel.includes("gizmo")) && (
+        {(currentModel.includes("vision") || currentModel.includes("gizmo") || currentModel.includes("all")) && (
           <ChatAction
             onClick={selectImage}
             text="选择文件"
@@ -1440,7 +1440,7 @@ function _Chat() {
                       defaultShow={i >= messages.length - 6}
                     />
                   </div>
-                  {!isUser && (message.model?.includes("vision") || message.model?.includes("gizmo")) && (
+                  {!isUser && (message.model?.includes("vision") || message.model?.includes("gizmo") || message.model?.includes("all")) && (
                     <div
                       className={[
                         styles["chat-message-actions"],

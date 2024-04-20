@@ -36,7 +36,7 @@ export class GeminiProApi implements LLMApi {
   }
   async chat(options: ChatOptions): Promise<void> {
     const messages: any[] = [];
-    if (options.config.model.includes("vision") || options.config.model.includes("gizmo")) {
+    if (options.config.model.includes("vision") || options.config.model.includes("gizmo") || options.config.model.includes("all")) {
       for (const v of options.messages) {
         let message: any = {
           role: v.role.replace("assistant", "model").replace("system", "user"),

@@ -86,7 +86,7 @@ export class ChatGPTApi implements LLMApi {
       const base64 = Buffer.from(response.data, "binary").toString("base64");
       return base64;
     };
-    if (options.config.model.includes("vision") || options.config.model.includes("gizmo")) {
+    if (options.config.model.includes("vision") || options.config.model.includes("gizmo") || options.config.model.includes("all")) {
       for (const v of options.messages) {
         let message: {
           role: string;
@@ -170,7 +170,7 @@ export class ChatGPTApi implements LLMApi {
       frequency_penalty: modelConfig.frequency_penalty,
       top_p: modelConfig.top_p,
       max_tokens:
-        modelConfig.model.includes("vision") || modelConfig.model.includes("gizmo")
+        modelConfig.model.includes("vision") || modelConfig.model.includes("gizmo") || modelConfig.model.includes("all")
           ? modelConfig.max_tokens
           : null,
       // max_tokens: Math.max(modelConfig.max_tokens, 1024),
