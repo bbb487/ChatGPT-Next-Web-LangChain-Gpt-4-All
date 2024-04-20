@@ -655,6 +655,7 @@ export function ChatActions(props: {
           />
         )}
 
+
         {showModelSelector && (
           <Selector
             defaultSelectedValue={currentModel}
@@ -843,7 +844,7 @@ function _Chat() {
     }
   };
 
-  const doSubmit = (userInput: string, userImages?: any[]) => {
+  const doSubmit = (userInput: string, userImage?: any) => {
     if (userInput.trim() === "") return;
     const matchCommand = chatCommands.match(userInput);
     if (matchCommand.matched) {
@@ -853,16 +854,11 @@ function _Chat() {
       return;
     }
     setIsLoading(true);
-
-    const userImageUrls = userImages?.map(image => image.fileUrl) || [];
-
     chatStore
-      .onUserInput(userInput, ...userImageUrls)
+      .onUserInput(userInput, userImage?.fileUrl)
       .then(() => setIsLoading(false));
-
     localStorage.setItem(LAST_INPUT_KEY, userInput);
-    localStorage.setItem(LAST_INPUT_IMAGE_KEY, JSON.stringify(userImages));
-
+    localStorage.setItem(LAST_INPUT_IMAGE_KEY, userImage);
     setUserInput("");
     setPromptHints([]);
     setUserImage(null);
@@ -930,13 +926,7 @@ function _Chat() {
       !(e.metaKey || e.altKey || e.ctrlKey)
     ) {
       setUserInput(localStorage.getItem(LAST_INPUT_KEY) ?? "");
-      if(localStorage.getItem(LAST_INPUT_IMAGE_KEY) !== null){
-        let retrievedUserImages = JSON.parse(localStorage.getItem(LAST_INPUT_IMAGE_KEY)!);
-        setUserImage(retrievedUserImages);
-      }
-      else{
-        setUserImage(null);
-      }
+      setUserImage(localStorage.getItem(LAST_INPUT_IMAGE_KEY));
       e.preventDefault();
       return;
     }
@@ -1485,7 +1475,7 @@ function _Chat() {
             onSearch("");
           }}
           imageSelected={(img: any) => {
-            setUserImage([...userImage, img]); // Add new image to the array
+            setUserImage(img);
           }}
         />
         <div className={styles["chat-input-panel-inner"]}>
@@ -1505,8 +1495,8 @@ function _Chat() {
               minHeight: textareaMinHeight,
             }}
           />
-          {userImages.map((userImage, index) => (
-            <div key={index} className={styles["chat-input-image"]}>
+          {userImage && (
+            <div className={styles["chat-input-image"]}>
               <div
                 style={{ position: "relative", width: "48px", height: "48px" }}
               >
@@ -1522,21 +1512,21 @@ function _Chat() {
               </div>
               <button
                 className={styles["chat-input-image-close"]}
-                id={`chat-input-image-close-${index}`}
+                id="chat-input-image-close"
                 onClick={() => {
-                  setUserImage(userImage.filter((_: any, i: any) => i !== index)); // Remove image
+                  setUserImage(null);
                 }}
               >
                 <CloseIcon />
               </button>
             </div>
-          ))}
+          )}
           <IconButton
             icon={<SendWhiteIcon />}
             text={Locale.Chat.Send}
             className={styles["chat-input-send"]}
             type="primary"
-            onClick={() => doSubmit(userInput, userImages)} // Pass the new array
+            onClick={() => doSubmit(userInput, userImage)}
           />
         </div>
       </div>
@@ -1553,7 +1543,6 @@ function _Chat() {
         />
       )}
     </div>
-
   );
 }
 
